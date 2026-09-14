@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تهنئة اليوم الوطني - السراة</title>
+<style>
+  @font-face {
+    font-family: 'GESSTwo';
+    src: url('GE_SS_Two_Medium.otf') format('opentype');
+    font-weight: 500;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'GESSTwo', 'Tajawal', sans-serif;
+    background: linear-gradient(160deg, #061a0e 0%, #0d2e18 50%, #061a0e 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .header img {
+    width: 100px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    color: #fff;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .header p {
+    color: #6aaa80;
+    font-size: 13px;
+  }
+
+  /* ---- Card ---- */
+  .card {
+    background: rgba(58, 126, 79, 0.07);
+    border: 1px solid rgba(58, 126, 79, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 480px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 40px rgba(58, 126, 79, 0.08);
+  }
+
+  .section-title {
+    color: #a8d4b5;
+    font-size: 15px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  /* ---- Design Picker ---- */
+  .designs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .design-option {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: border-color 0.25s, transform 0.2s;
+    aspect-ratio: 9/16;
+  }
+
+  .design-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .design-option.selected {
+    border-color: #3a7e4f;
+    transform: scale(1.02);
+  }
+
+  .design-option .check {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 22px;
+    height: 22px;
+    background: #3a7e4f;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 13px;
+  }
+
+  .design-option.selected .check { display: flex; }
+
+  /* ---- Input ---- */
+  .input-group { margin-bottom: 20px; }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1.5px solid rgba(58, 126, 79, 0.4);
+    background: rgba(255,255,255,0.04);
+    color: #3a7e4f;
+    font-family: 'GESSTwo', 'Tajawal', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    direction: rtl;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  input[type="text"]::placeholder { color: rgba(58, 126, 79, 0.4); }
+  input[type="text"]:focus {
+    border-color: #3a7e4f;
+    background: rgba(58, 126, 79, 0.08);
+  }
+
+  /* ---- Buttons ---- */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #3a7e4f, #1f5433);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'GESSTwo', 'Tajawal', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.2s;
+  }
+
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ---- Preview ---- */
+  .preview-section {
+    margin-top: 30px;
+    text-align: center;
+    display: none;
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .preview-section.visible { display: block; }
+
+  .preview-label {
+    color: #6aaa80;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  #canvas-wrapper {
+    display: inline-block;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    max-width: 280px;
+    width: 100%;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .download-btn, .share-btn {
+    display: inline-block;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-family: 'GESSTwo', 'Tajawal', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: opacity 0.3s;
+  }
+
+  .download-btn {
+    background: linear-gradient(135deg, #3a7e4f, #1f5433);
+    color: #fff;
+  }
+
+  .share-btn {
+    background: rgba(58, 126, 79, 0.12);
+    color: #3a7e4f;
+    border: 1.5px solid rgba(58, 126, 79, 0.5);
+  }
+
+  .download-btn:hover, .share-btn:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <img src="alsarah-logo-white.png" alt="السراة">
+  <h1>تهنئة اليوم الوطني السعودي 96</h1>
+  <p>اختر تصميمك وأضف اسمك</p>
+</div>
+
+<!-- Card -->
+<div class="card">
+
+  <!-- اختيار التصميم -->
+  <p class="section-title">اختر التصميم</p>
+  <div class="designs-grid">
+    <div class="design-option selected" id="d1" onclick="selectDesign(1)">
+      <img src="post1.png" alt="تصميم 1">
+      <div class="check">✓</div>
+    </div>
+    <div class="design-option" id="d2" onclick="selectDesign(2)">
+      <img src="post2.png" alt="تصميم 2">
+      <div class="check">✓</div>
+    </div>
+    <div class="design-option" id="d3" onclick="selectDesign(3)">
+      <img src="post3.png" alt="تصميم 3">
+      <div class="check">✓</div>
+    </div>
+    <div class="design-option" id="d4" onclick="selectDesign(4)">
+      <img src="post4.png" alt="تصميم 4">
+      <div class="check">✓</div>
+    </div>
+  </div>
+
+  <!-- الاسم -->
+  <div class="input-group">
+    <p class="section-title" style="margin-bottom:10px">اكتب اسمك</p>
+    <input type="text" id="nameInput" placeholder="الاسم هنا..." />
+  </div>
+
+  <button class="btn" id="generateBtn" onclick="generateCard()">✨ إنشاء التهنئة</button>
+</div>
+
+<!-- Preview -->
+<div class="preview-section" id="previewSection">
+  <p class="preview-label">معاينة التهنئة</p>
+  <div id="canvas-wrapper">
+    <canvas id="myCanvas"></canvas>
+  </div>
+  <div class="action-row">
+    <a class="download-btn" id="downloadBtn" download="اليوم_الوطني.png">⬇️ تحميل الصورة</a>
+    <button class="share-btn" id="shareBtn" onclick="shareCard()" style="display:none">📤 مشاركة / حفظ</button>
+  </div>
+</div>
+
+<script>
+  // ---- الإعدادات ----
+  const NAME_COLOR  = '#3a7e4f';
+  const NAME_Y_PCT  = 0.760;   // موضع الاسم من أعلى الصورة
+  const FONT_SIZE   = 38;      // بالـ px نسبة للقياس الأصلي
+
+  // ---- تحميل الصور الأربع مسبقاً ----
+  const images = {};
+  let selectedDesign = 1;
+
+  [1, 2, 3, 4].forEach(n => {
+    images[n] = { img: new Image(), ready: false, url: null };
+    fetch(`post${n}.png?v=` + Date.now())
+      .then(r => r.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        images[n].url = url;
+        images[n].img.src = url;
+        images[n].img.onload = () => { images[n].ready = true; };
+      })
+      .catch(e => console.error(`post${n}.png error:`, e));
+  });
+
+  // ---- تحميل الخط ----
+  const customFont = new FontFace('GESSTwo', "url('GE_SS_Two_Medium.otf')", { weight: '500' });
+  customFont.load()
+    .then(f => document.fonts.add(f))
+    .catch(e => console.log('Font fallback:', e));
+
+  // ---- اختيار التصميم ----
+  function selectDesign(n) {
+    document.querySelectorAll('.design-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('d' + n).classList.add('selected');
+    selectedDesign = n;
+  }
+
+  // ---- إنشاء الصورة ----
+  let lastBlob = null;
+
+  async function generateCard() {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) { alert('من فضلك اكتب اسمك أولاً'); return; }
+
+    const btn = document.getElementById('generateBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ جاري الإنشاء...';
+
+    try {
+      const entry = images[selectedDesign];
+
+      // انتظر الصورة لو لم تكتمل بعد
+      if (!entry.ready) {
+        await new Promise((resolve, reject) => {
+          entry.img.onload = () => { entry.ready = true; resolve(); };
+          entry.img.onerror = reject;
+          setTimeout(reject, 15000);
+        });
+      }
+
+      await document.fonts.load(`500 50px GESSTwo`);
+
+      const canvas = document.getElementById('myCanvas');
+      const ctx    = canvas.getContext('2d');
+      const img    = entry.img;
+
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+
+      const cx     = canvas.width / 2;
+      const nameY  = Math.round(canvas.height * NAME_Y_PCT);
+      // FONT_SIZE=38 مقاسة على عرض 3375px
+      const fontSize = Math.round((FONT_SIZE / 3375) * canvas.width * 10);
+
+      ctx.font         = `500 ${fontSize}px GESSTwo, Tajawal, sans-serif`;
+      ctx.fillStyle    = NAME_COLOR;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.direction    = 'rtl';
+      ctx.fillText(name, cx, nameY);
+
+      // تحميل عادي
+      document.getElementById('downloadBtn').href = canvas.toDataURL('image/png');
+
+      // blob للمشاركة
+      canvas.toBlob(blob => { lastBlob = blob; }, 'image/png');
+
+      // زر المشاركة على الجوال
+      const shareBtn = document.getElementById('shareBtn');
+      shareBtn.style.display = (navigator.canShare && navigator.share) ? 'inline-block' : 'none';
+
+      document.getElementById('previewSection').classList.add('visible');
+      document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+
+    } catch (err) {
+      alert('تعذّر تحميل الصورة، تأكد من اتصال الإنترنت وأعد المحاولة');
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✨ إنشاء التهنئة';
+    }
+  }
+
+  // ---- مشاركة ----
+  async function shareCard() {
+    if (!lastBlob) return;
+    try {
+      const file = new File([lastBlob], 'اليوم_الوطني.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'تهنئة اليوم الوطني 96 - السراة' });
+      } else {
+        alert('المشاركة غير مدعومة، استخدم زر التحميل');
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') console.error(err);
+    }
+  }
+
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') generateCard();
+  });
+</script>
+
+</body>
+</html>
