@@ -329,7 +329,7 @@
 
     const btn = document.getElementById('generateBtn');
     btn.disabled = true;
-    btn.textContent = '⏳ جاري الإنشاء...';
+    btn.textContent = ' جاري الإنشاء...';
 
     try {
       const img = await loadImage(selectedDesign);
@@ -373,7 +373,7 @@
       console.error(err);
     } finally {
       btn.disabled = false;
-      btn.textContent = '✨ إنشاء التهنئة';
+      btn.textContent = ' إنشاء التهنئة';
     }
   }
 
