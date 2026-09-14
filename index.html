@@ -223,6 +223,7 @@
 
   .download-btn:hover, .share-btn:hover { opacity: 0.85; }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -367,6 +368,7 @@
 
       document.getElementById('previewSection').classList.add('visible');
       document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.4 }, colors: ['#3a7e4f', '#ffffff', '#1f5433', '#6aaa80'] });
 
     } catch (err) {
       alert('تعذّر تحميل الصورة، تأكد من اتصال الإنترنت وأعد المحاولة');
