@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>تهنئة اليوم الوطني - السراة</title>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <style>
   @font-face {
     font-family: 'GESSTwo';
@@ -23,7 +24,6 @@
     padding: 40px 20px 60px;
   }
 
-  /* ---- Header ---- */
   .header {
     text-align: center;
     margin-bottom: 28px;
@@ -42,12 +42,8 @@
     margin-bottom: 4px;
   }
 
-  .header p {
-    color: #6aaa80;
-    font-size: 13px;
-  }
+  .header p { color: #6aaa80; font-size: 13px; }
 
-  /* ---- Card ---- */
   .card {
     background: rgba(58, 126, 79, 0.07);
     border: 1px solid rgba(58, 126, 79, 0.3);
@@ -66,7 +62,7 @@
     text-align: center;
   }
 
-  /* ---- Design Picker ---- */
+  /* اختيار التصميم */
   .designs-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -113,7 +109,7 @@
 
   .design-option.selected .check { display: flex; }
 
-  /* ---- Input ---- */
+  /* حقل الاسم */
   .input-group { margin-bottom: 20px; }
 
   input[type="text"] {
@@ -138,26 +134,7 @@
     background: rgba(58, 126, 79, 0.08);
   }
 
-  /* ---- Buttons ---- */
-  .btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #3a7e4f, #1f5433);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-family: 'GESSTwo', 'Tajawal', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.3s, transform 0.2s;
-  }
-
-  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .btn:active { transform: translateY(0); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* ---- Preview ---- */
+  /* معاينة */
   .preview-section {
     margin-top: 30px;
     text-align: center;
@@ -222,22 +199,26 @@
   }
 
   .download-btn:hover, .share-btn:hover { opacity: 0.85; }
+
+  /* loading dots */
+  .loading-hint {
+    color: #4a8a5e;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 10px;
+    min-height: 20px;
+  }
 </style>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
-<!-- Header -->
 <div class="header">
   <img src="alsarah-logo-white.png" alt="السراة">
   <h1>تهنئة اليوم الوطني السعودي 96</h1>
   <p>اختر تصميمك وأضف اسمك</p>
 </div>
 
-<!-- Card -->
 <div class="card">
-
-  <!-- اختيار التصميم -->
   <p class="section-title">اختر التصميم</p>
   <div class="designs-grid">
     <div class="design-option selected" id="d1" onclick="selectDesign(1)">
@@ -258,36 +239,35 @@
     </div>
   </div>
 
-  <!-- الاسم -->
   <div class="input-group">
     <p class="section-title" style="margin-bottom:10px">اكتب اسمك</p>
-    <input type="text" id="nameInput" placeholder="الاسم هنا..." />
+    <input type="text" id="nameInput" placeholder="الاسم هنا..." oninput="liveRender()" />
   </div>
 
-  <button class="btn" id="generateBtn" onclick="generateCard()"> إنشاء التهنئة</button>
+  <p class="loading-hint" id="loadingHint"></p>
 </div>
 
-<!-- Preview -->
 <div class="preview-section" id="previewSection">
   <p class="preview-label">معاينة التهنئة</p>
   <div id="canvas-wrapper">
     <canvas id="myCanvas"></canvas>
   </div>
   <div class="action-row">
-    <a class="download-btn" id="downloadBtn" download="اليوم_الوطني.png"> تحميل الصورة</a>
-    <button class="share-btn" id="shareBtn" onclick="shareCard()" style="display:none"> مشاركة / حفظ</button>
+    <a class="download-btn" id="downloadBtn" download="اليوم_الوطني.png">⬇️ تحميل الصورة</a>
+    <button class="share-btn" id="shareBtn" onclick="shareCard()" style="display:none">📤 مشاركة / حفظ</button>
   </div>
 </div>
 
 <script>
-  // ---- الإعدادات ----
-  const NAME_COLOR  = '#3a7e4f';
-  const NAME_Y_PCT  = 0.760;   // موضع الاسم من أعلى الصورة
-  const FONT_SIZE   = 15;      // بالـ px نسبة للقياس الأصلي
+  const NAME_COLOR = '#3a7e4f';
+  const NAME_Y_PCT = 0.760;
+  const FONT_SIZE  = 15;
 
   // ---- تحميل الصور ----
   const images = {};
   let selectedDesign = 1;
+  let confettiFired  = false;
+  let renderTimer    = null;
 
   async function loadImage(n) {
     if (images[n] && images[n].ready) return images[n].img;
@@ -305,37 +285,28 @@
     return img;
   }
 
-  // تحميل مسبق في الخلفية
+  // تحميل كل الصور في الخلفية عند فتح الصفحة
   [1, 2, 3, 4].forEach(n => loadImage(n).catch(() => {}));
 
   // ---- تحميل الخط ----
   const customFont = new FontFace('GESSTwo', "url('GE_SS_Two_Medium.otf')", { weight: '500' });
-  customFont.load()
-    .then(f => document.fonts.add(f))
-    .catch(e => console.log('Font fallback:', e));
+  customFont.load().then(f => document.fonts.add(f)).catch(() => {});
 
   // ---- اختيار التصميم ----
   function selectDesign(n) {
     document.querySelectorAll('.design-option').forEach(el => el.classList.remove('selected'));
     document.getElementById('d' + n).classList.add('selected');
     selectedDesign = n;
+    liveRender();
   }
 
-  // ---- إنشاء الصورة ----
+  // ---- رسم الاسم على الكانفاس ----
   let lastBlob = null;
 
-  async function generateCard() {
-    const name = document.getElementById('nameInput').value.trim();
-    if (!name) { alert('من فضلك اكتب اسمك أولاً'); return; }
-
-    const btn = document.getElementById('generateBtn');
-    btn.disabled = true;
-    btn.textContent = ' جاري الإنشاء...';
-
+  async function drawCard(name) {
     try {
       const img = await loadImage(selectedDesign);
-
-      await document.fonts.load(`500 50px GESSTwo`);
+      await document.fonts.load('500 50px GESSTwo');
 
       const canvas = document.getElementById('myCanvas');
       const ctx    = canvas.getContext('2d');
@@ -344,39 +315,47 @@
       canvas.height = img.naturalHeight;
       ctx.drawImage(img, 0, 0);
 
-      const cx     = canvas.width / 2;
-      const nameY  = Math.round(canvas.height * NAME_Y_PCT);
-      // FONT_SIZE=38 مقاسة على عرض 3375px
-      const fontSize = Math.round((FONT_SIZE / 3375) * canvas.width * 10);
+      if (name) {
+        const cx       = canvas.width / 2;
+        const nameY    = Math.round(canvas.height * NAME_Y_PCT);
+        const fontSize = Math.round((FONT_SIZE / 3375) * canvas.width * 10);
 
-      ctx.font         = `500 ${fontSize}px GESSTwo, Tajawal, sans-serif`;
-      ctx.fillStyle    = NAME_COLOR;
-      ctx.textAlign    = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.direction    = 'rtl';
-      ctx.fillText(name, cx, nameY);
+        ctx.font         = `500 ${fontSize}px GESSTwo, Tajawal, sans-serif`;
+        ctx.fillStyle    = NAME_COLOR;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.direction    = 'rtl';
+        ctx.fillText(name, cx, nameY);
+      }
 
-      // تحميل عادي
       document.getElementById('downloadBtn').href = canvas.toDataURL('image/png');
-
-      // blob للمشاركة
       canvas.toBlob(blob => { lastBlob = blob; }, 'image/png');
 
-      // زر المشاركة على الجوال
       const shareBtn = document.getElementById('shareBtn');
-      shareBtn.style.display = (navigator.canShare && navigator.share) ? 'inline-block' : 'none';
+      shareBtn.style.display = (name && navigator.canShare && navigator.share) ? 'inline-block' : 'none';
 
       document.getElementById('previewSection').classList.add('visible');
-      document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
-      confetti({ particleCount: 150, spread: 80, origin: { y: 0.4 }, colors: ['#3a7e4f', '#ffffff', '#1f5433', '#6aaa80'] });
+      document.getElementById('loadingHint').textContent = '';
 
     } catch (err) {
-      alert('تعذّر تحميل الصورة، تأكد من اتصال الإنترنت وأعد المحاولة');
+      document.getElementById('loadingHint').textContent = 'تعذّر تحميل الصورة، تأكد من اتصال الإنترنت';
       console.error(err);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = ' إنشاء التهنئة';
     }
+  }
+
+  // ---- live render مع debounce ----
+  function liveRender() {
+    const name = document.getElementById('nameInput').value.trim();
+
+    // أول مرة يكتب الاسم نطلق الكونفتي
+    if (name && !confettiFired) {
+      confettiFired = true;
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.4 }, colors: ['#3a7e4f', '#ffffff', '#1f5433', '#6aaa80'] });
+    }
+
+    // debounce 300ms عشان ما نرسم مع كل حرف
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => drawCard(name), 300);
   }
 
   // ---- مشاركة ----
@@ -393,10 +372,6 @@
       if (err.name !== 'AbortError') console.error(err);
     }
   }
-
-  document.getElementById('nameInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') generateCard();
-  });
 </script>
 
 </body>
