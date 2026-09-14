@@ -259,8 +259,8 @@
     <canvas id="myCanvas"></canvas>
   </div>
   <div class="action-row">
-    <a class="download-btn" id="downloadBtn" download="اليوم_الوطني.png">⬇️ تحميل الصورة</a>
-    <button class="share-btn" id="shareBtn" onclick="shareCard()" style="display:none">📤 مشاركة / حفظ</button>
+    <a class="download-btn" id="downloadBtn" download="اليوم_الوطني.png"> تحميل الصورة</a>
+    <button class="share-btn" id="shareBtn" onclick="shareCard()" style="display:none"> مشاركة / حفظ</button>
   </div>
 </div>
 
@@ -315,7 +315,7 @@
     if (!name) { alert('من فضلك اكتب اسمك أولاً'); return; }
 
     const btn = document.getElementById('generateBtn');
-    if (!silent) { btn.disabled = true; btn.textContent = '⏳ جاري الإنشاء...'; }
+    if (!silent) { btn.disabled = true; btn.textContent = ' جاري الإنشاء...'; }
 
     try {
       const img = await loadImage(selectedDesign);
